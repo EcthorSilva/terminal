@@ -1,27 +1,26 @@
-const { exec } = require('child_process'); // Importa o módulo child_process
+const terminal = document.getElementById('terminal');
 
-const terminal = document.getElementById('terminal'); // Obtém o elemento do terminal
+const welcomeMessage = `Terminal [versão 1.0.1]`;
 
-// Adiciona um ouvinte de evento para a tecla pressionada
-terminal.addEventListener('keypress', (event) => {
+terminal.innerHTML = welcomeMessage + '\n> ';
+
+terminal.addEventListener('keypress', async (event) => {
   if (event.key === 'Enter') {
-    event.preventDefault(); // Previne o comportamento padrão da tecla Enter
+    event.preventDefault();
 
-    const input = terminal.innerText.trim(); // Obtém o comando do terminal
-    terminal.innerHTML += '\n'; // Adiciona uma nova linha ao terminal
+    const input = terminal.innerText.trim();
+    terminal.innerHTML += '\n';
 
-    // Executa o comando e lida com a saída
-    exec(input, (error, stdout, stderr) => {
-      if (error) {
-        terminal.innerHTML += `Error: ${stderr}\n`; // Mostra mensagens de erro
-      } else {
-        terminal.innerHTML += `${stdout}\n`; // Mostra a saída do comando
-      }
+    try {
+      const output = await window.api.execCommand(input);
+      console.log(`Saída do comando: ${output}`);
+      terminal.innerHTML += `${output}\n`;
+    } catch (error) {
+      console.error(`Erro ao executar o comando: ${error}`);
+      terminal.innerHTML += `(render)${error}\n`;
+    }
 
-      terminal.innerHTML += '> '; // Adiciona o prompt de entrada
-      terminal.scrollTop = terminal.scrollHeight; // Rola o terminal para baixo
-    });
+    terminal.innerHTML += '> ';
+    terminal.scrollTop = terminal.scrollHeight;
   }
 });
-
-terminal.innerHTML = '> '; // Define o prompt inicial
